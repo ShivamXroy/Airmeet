@@ -29,7 +29,7 @@ const start = async() => {
 
     console.log(`Mongo connected DB host : ${connectionDb.connection.host} `)
     server.listen(app.get("port"), () => {
-        console.log("listening bitch")
+        console.log("listening ")
     });
 }
 
