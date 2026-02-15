@@ -1,85 +1,129 @@
-import React, { useContext, useEffect, useState } from 'react'
-import {AuthContext} from '../contexts/AuthContext'
-import { useNavigate } from 'react-router-dom';
-import Card from '@mui/material/Card';
-import Box from '@mui/material/Box';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import HomeIcon from '@mui/icons-material/Home';
-
-import { IconButton } from '@mui/material';
-
+import React, { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../contexts/AuthContext"; // ✅ adjust path if needed
 
 export default function History() {
+  const navigate = useNavigate();
+  const { getHistoryOfUser } = useContext(AuthContext);
 
-    const{getHistoryOfUser} = useContext(AuthContext);
-    const [meetings, setMeetings] = useState([])
+  const [history, setHistory] = useState([]);
 
-  const routeTo = useNavigate();
-   useEffect(() => {
-        const fetchHistory = async () => {
-            try {
-                const history = await getHistoryOfUser();
-                setMeetings(history);
-            } catch {
-                // IMPLEMENT SNACKBAR
-            }
-        }
+  useEffect(() => {
+    let alive = true;
 
-        fetchHistory();
-    }, [])
-  
-     let formatDate = (dateString) => {
+    const loadHistory = async () => {
+      try {
+        const data = await getHistoryOfUser();
+        if (!alive) return;
+        setHistory(Array.isArray(data) ? data : []);
+      } catch (e) {
+        if (!alive) return;
+        setHistory([]);
+      }
+    };
 
-        const date = new Date(dateString);
-        const day = date.getDate().toString().padStart(2, "0");
-        const month = (date.getMonth() + 1).toString().padStart(2, "0")
-        const year = date.getFullYear();
+    loadHistory();
+    return () => {
+      alive = false;
+    };
+  }, [getHistoryOfUser]);
 
-        return `${day}/${month}/${year}`
-
-    }
   return (
-    <div>
-         <IconButton onClick={() => {
-                routeTo("/home")
-            }}>
-                <HomeIcon />
-            </IconButton >
-            {
-                (meetings.length !== 0) ? meetings.map((e, i) => {
-                    return (
+    <div className="homeContainer">
+      <nav className="homeNav">
+        <div className="navHeader">
+          <div className="navLogo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h2>AirMeet</h2>
+        </div>
 
-                        <>
+        <div className="navlist">
+          <button className="nav-icon-btn" onClick={() => navigate("/home")}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
+        </div>
+      </nav>
 
+      <main style={{ maxWidth: 800, margin: "0 auto", padding: "48px 24px" }}>
+        <h1 style={{ fontFamily: "var(--font-display)", fontSize: "1.8rem", fontWeight: 700, marginBottom: 8 }}>
+          Meeting History
+        </h1>
+        <p style={{ color: "var(--text-muted)", marginBottom: 32 }}>
+          Your past meetings and sessions.
+        </p>
 
-                            <Card key={i} variant="outlined">
+        {history.length === 0 ? (
+          <div
+            style={{
+              textAlign: "center",
+              padding: 60,
+              background: "var(--bg-card)",
+              borderRadius: 16,
+              border: "1px solid var(--border)",
+            }}
+          >
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: "50%",
+                background: "var(--bg-secondary)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 16px",
+              }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+            </div>
+            <p style={{ color: "var(--text-muted)" }}>No meeting history yet</p>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.8rem", marginTop: 4 }}>
+              Your meetings will appear here after you join or create one.
+            </p>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {history.map((item, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "16px 20px",
+                  background: "var(--bg-card)",
+                  borderRadius: 12,
+                  border: "1px solid var(--border)",
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>{item.meeting_code}</div>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: 4 }}>
+                    {item.date ? new Date(item.date).toLocaleString() : ""}
+                  </div>
+                </div>
 
-
-                                <CardContent>
-                                    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                                        Code: {e.meetingCode}
-                                    </Typography>
-
-                                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                                        Date: {formatDate(e.date)}
-                                    </Typography>
-
-                                </CardContent>
-
-
-                            </Card>
-
-
-                        </>
-                    )
-                }) : <></>
-
-            }
+                <button
+                  className="join-link-btn"
+                  style={{ padding: "8px 20px" }}
+                  onClick={() => navigate(`/meet/${item.meeting_code}`)}
+                >
+                  Rejoin
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
-
-    
-  )
+  );
 }
