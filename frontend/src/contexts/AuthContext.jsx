@@ -9,8 +9,16 @@ export const AuthProvider = ({ children }) => {
   const [userData, setUserData] = useState({});
 
   // ---------- helpers ----------
-  const getCurrentUser = () => localStorage.getItem("airmeet_current_user") || "";
-  const historyKey = () => `airmeet_history_${getCurrentUser() || "guest"}`;
+ const getCurrentUser = useCallback(
+  () => localStorage.getItem("airmeet_current_user") || "",
+  []
+);
+
+const historyKey = useCallback(
+  () => `airmeet_history_${getCurrentUser() || "guest"}`,
+  [getCurrentUser]
+);
+
 
 const handleRegister = useCallback(async (name, username, password) => {
   const users = JSON.parse(localStorage.getItem("airmeet_users") || "[]");
@@ -47,7 +55,7 @@ const getHistoryOfUser = useCallback(async () => {
   const key = historyKey();
   const history = JSON.parse(localStorage.getItem(key) || "[]");
   return Array.isArray(history) ? history : [];
-}, []);
+}, [historyKey]);
 
 const addToUserHistory = useCallback(async (meetingCode) => {
   if (!meetingCode) return;
@@ -57,7 +65,7 @@ const addToUserHistory = useCallback(async (meetingCode) => {
 
   history.push({ meeting_code: meetingCode, date: new Date().toISOString() });
   localStorage.setItem(key, JSON.stringify(history));
-}, []);
+}, [historyKey]);
 
  const value = useMemo(
   () => ({

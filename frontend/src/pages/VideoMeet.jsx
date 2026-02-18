@@ -141,7 +141,7 @@ const attachStream = useCallback((el, stream, muted = false) => {
         if (s) s.getTracks().forEach((t) => t.stop());
       } catch {}
     };
-  }, []);
+  }, [attachStream]);
 
   // reattach local stream on view changes
   useEffect(() => {
@@ -219,6 +219,22 @@ const attachStream = useCallback((el, stream, muted = false) => {
     remoteVideoRefs.current = {};
     setRemoteIds([]);
   }, []);
+
+    const handleEndCall = useCallback((silent = false) => {
+    if (!silent) {
+      try {
+        const s = window.localStream;
+        if (s) s.getTracks().forEach((t) => t.stop());
+      } catch {}
+    }
+
+    try {
+      socketRef.current?.disconnect();
+    } catch {}
+
+    closeAllPeers();
+    navigate("/home");
+  },[closeAllPeers, navigate]);
 
   // ---------------------------
   // socket connect AFTER name submit
@@ -463,22 +479,6 @@ const attachStream = useCallback((el, stream, muted = false) => {
       }
     }
   };
-
-  const handleEndCall = useCallback((silent = false) => {
-    if (!silent) {
-      try {
-        const s = window.localStream;
-        if (s) s.getTracks().forEach((t) => t.stop());
-      } catch {}
-    }
-
-    try {
-      socketRef.current?.disconnect();
-    } catch {}
-
-    closeAllPeers();
-    navigate("/home");
-  },[closeAllPeers, navigate]);
 
   const toggleHandRaise = () => {
     setHandRaised((prev) => {
