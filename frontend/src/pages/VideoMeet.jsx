@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 
-const SERVER_URL = process.env.REACT_APP_SERVER_URL || "http://localhost:8000";
+const SERVER_URL = process.env.REACT_APP_SERVER_URL || server;
 
 const iceServers = [{ urls: "stun:stun.l.google.com:19302" }];
 
