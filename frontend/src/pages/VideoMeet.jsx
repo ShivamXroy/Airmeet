@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL || "http://localhost:8000";
+console.log("SERVER_URL =>", SERVER_URL);
 
 const iceServers = [{ urls: "stun:stun.l.google.com:19302" }];
 
