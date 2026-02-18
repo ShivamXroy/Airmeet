@@ -83,6 +83,12 @@ export default function VideoMeet() {
   // ---------------------------
   // helpers
   // ---------------------------
+  const showChatRef = useRef(false);
+
+useEffect(() => {
+  showChatRef.current = showChat;
+}, [showChat]);
+
 const safePlay = useCallback((el) => {
   if (!el) return;
   const p = el.play?.();
@@ -372,7 +378,7 @@ const attachStream = useCallback((el, stream, muted = false) => {
 
     socket.on("chat-message", (data, sender) => {
       setMessages((prev) => [...prev, { sender: sender || "Guest", data }]);
-      if (!showChat) setNewMessages((p) => p + 1);
+      if (!showChatRef.current) setNewMessages((p) => p + 1);
     });
 
     socket.on("user-left", (id) => {
@@ -392,7 +398,7 @@ const attachStream = useCallback((el, stream, muted = false) => {
       socketRef.current = null;
       closeAllPeers();
     };
-  }, [askForUsername, roomId, username, createPeer, cleanupPeer, closeAllPeers,attachStream,handleEndCall,showChat]);
+  }, [askForUsername, roomId, username, createPeer, cleanupPeer, closeAllPeers,attachStream,handleEndCall]);
 
   // ---------------------------
   // actions
@@ -515,7 +521,7 @@ const attachStream = useCallback((el, stream, muted = false) => {
         ...prev,
         { sender: username, data: reader.result, type: isImage ? "image" : "file", fileName: file.name },
       ]);
-      if (!showChat) setNewMessages((p) => p + 1);
+      if (!showChatRef.current) setNewMessages((p) => p + 1);
     };
     reader.readAsDataURL(file);
     e.target.value = "";
